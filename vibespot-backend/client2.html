@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Client 2</title>
+</head>
+
+<body>
+
+<h2>Client 2 (Authenticated)</h2>
+
+<input id="message" placeholder="Type message">
+
+<button onclick="sendMessage()">
+Send
+</button>
+
+<hr>
+
+<div id="messages"></div>
+
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+<script>
+
+const ROOM = "23dd79ea-a0c3-439c-a917-b952a53ccf4b";
+
+const MATCH_ID = "1b646624-608e-452e-88c7-d18625ceb377";
+
+const TOKEN = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjBhY2RhMThmLTNkMzMtNDE1NS05NzczLWJmYzRmM2NlNmVlZSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1c2t4bGl6cHp4b3Vjd2VyemdhLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIwMjUwMDc1ZC0yZjhjLTQ5OGMtYTU5My1lYzZmMWM3MzU5MWMiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzg1MTQ3MTgyLCJpYXQiOjE3ODUxNDM1ODIsImVtYWlsIjoiYnVubnlAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbCI6ImJ1bm55QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInN1YiI6IjAyNTAwNzVkLTJmOGMtNDk4Yy1hNTkzLWVjNmYxYzczNTkxYyJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzg1MTQzNTgyfV0sInNlc3Npb25faWQiOiI0NjllYzlmYy1mNDY4LTRlNDQtODA3ZC0zZjI4ZjkwYWY4ZmUiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.b2wvzSA1ZgrNBd3zSxbQcZr6s0zHHrzi8XpjLIeawjNSoKKyeSlnORTaa4hyeZW0MxFLscSrsc-g879CZ9bYQg";
+
+const socket = io("http://localhost:5000",{
+
+    auth:{
+        token:TOKEN
+    }
+
+});
+
+socket.on("connect",()=>{
+
+    console.log("Connected:",socket.id);
+
+    socket.emit("join_room",ROOM);
+
+});
+
+socket.on("receive_message",(data)=>{
+
+    document.getElementById("messages").innerHTML +=
+    `<p><b>${data.senderId}</b> : ${data.message}</p>`;
+
+});
+
+socket.on("chat_error",(err)=>{
+
+    alert(err.message);
+
+});
+
+socket.on("connect_error",(err)=>{
+
+    alert(err.message);
+
+});
+
+function sendMessage(){
+
+    const msg=document.getElementById("message").value;
+
+   socket.emit("send_message",{
+
+        roomId:ROOM,
+    
+        matchId:MATCH_ID,
+    
+        message:msg
+
+});
+
+    document.getElementById("message").value="";
+
+}
+
+</script>
+
+</body>
+
+</html>

@@ -1,9 +1,10 @@
 import { Server } from "socket.io";
+import { registerSocketEvents } from "../controllers/socketController.js";
+import socketAuthMiddleware from "../middleware/socketAuthMiddleware.js";
 
 let io;
 
 export const initializeSocket = (server) => {
-    console.log("Initializing Socket.IO...");
 
     io = new Server(server, {
         cors: {
@@ -12,13 +13,24 @@ export const initializeSocket = (server) => {
         }
     });
 
-    io.on("connection", (socket) => {
-        console.log("Socket Connected:", socket.id);
+    io.use(socketAuthMiddleware);
 
-        socket.on("disconnect", () => {
-            console.log("Socket Disconnected:", socket.id);
-        });
+    io.on("connection", (socket) => {
+
+        console.log(`Authenticated User: ${socket.user.email}`);
+
+        registerSocketEvents(io, socket);
+
     });
+
 };
 
-export const getIO = () => io;
+export const getIO = () => {
+
+    if (!io) {
+        throw new Error("Socket.IO not initialized.");
+    }
+
+    return io;
+
+};

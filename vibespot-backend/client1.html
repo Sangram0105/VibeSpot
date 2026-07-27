@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Client 1</title>
+</head>
+
+<body>
+
+<h2>Client 1 (Authenticated)</h2>
+
+<input id="message" placeholder="Type message">
+
+<button onclick="sendMessage()">
+Send
+</button>
+
+<hr>
+
+<div id="messages"></div>
+
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+<script>
+
+const ROOM = "23dd79ea-a0c3-439c-a917-b952a53ccf4b";
+
+const MATCH_ID = "1b646624-608e-452e-88c7-d18625ceb377";
+
+const TOKEN = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjBhY2RhMThmLTNkMzMtNDE1NS05NzczLWJmYzRmM2NlNmVlZSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1c2t4bGl6cHp4b3Vjd2VyemdhLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI5NmJlZjhlNC1kODNiLTQ4MmEtODljNi02ZjgxMGIxZWNmZmYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzg1MTQ3MTM3LCJpYXQiOjE3ODUxNDM1MzcsImVtYWlsIjoicmFrZXNoQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJyYWtlc2hAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiOTZiZWY4ZTQtZDgzYi00ODJhLTg5YzYtNmY4MTBiMWVjZmZmIn0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3ODUxNDM1Mzd9XSwic2Vzc2lvbl9pZCI6ImI1MGE5ZmI5LTQxYTUtNGZlMy1iOTVlLTcxNzQ3ZjEzNWM4MiIsImlzX2Fub255bW91cyI6ZmFsc2V9.wW4WXb09ZSWsHQg1hafb6NpOQ_ILLV_5R09cTzzg4dyfkivirFK5mKf5iQMVf56BNqpO3FL8OFOc4RxmV7pFLA";
+
+const socket = io("http://localhost:5000",{
+
+    auth:{
+        token:TOKEN
+    }
+
+});
+
+socket.on("connect",()=>{
+
+    console.log("Connected:",socket.id);
+
+    socket.emit("join_room",ROOM);
+
+});
+
+socket.on("receive_message",(data)=>{
+
+    document.getElementById("messages").innerHTML +=
+    `<p><b>${data.senderId}</b> : ${data.message}</p>`;
+
+});
+
+socket.on("chat_error",(err)=>{
+
+    alert(err.message);
+
+});
+
+socket.on("connect_error",(err)=>{
+
+    alert(err.message);
+
+});
+
+function sendMessage(){
+
+    const msg=document.getElementById("message").value;
+
+    socket.emit("send_message",{
+
+
+        roomId:ROOM,
+
+        matchId:MATCH_ID,
+
+        message:msg
+
+});
+
+    document.getElementById("message").value="";
+
+}
+
+</script>
+
+</body>
+
+</html>

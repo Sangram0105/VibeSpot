@@ -13,6 +13,7 @@ import checkinRoutes from "./routes/checkinRoutes.js";
 import vibeRoutes from "./routes/vibeRoutes.js";
 import matchRoutes from "./routes/matchRoutes.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
+import messageRoutes from "./routes/messageRoutes.js";
 import { logger } from "./utils/logger.js";
 import http from "http";
 import { initializeSocket } from "./socket/socket.js";
@@ -42,6 +43,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/checkins",checkinRoutes);
 app.use("/api/vibes", vibeRoutes);
 app.use("/api/matches", matchRoutes);
+app.use("/api/messages", messageRoutes);
 app.use(errorMiddleware);
 
 // Start Server
