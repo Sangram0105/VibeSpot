@@ -1,6 +1,7 @@
 import supabase from "../config/supabase.js";
 import { v4 as uuidv4 } from "uuid";
 import AppError from "../utils/appError.js";
+import { getSocketByUserId } from "./socketRegistry.js";
 
 export const sendVibeService = async (sender, body) => {
 
@@ -115,18 +116,41 @@ export const sendVibeService = async (sender, body) => {
         };
     }
 
-    // Step 9 - Insert pending vibe
-    const { error: vibeError } = await supabase
+        // Step 9 - Insert pending vibe
+    const { data: vibe, error: vibeError } = await supabase
         .from("vibes")
         .insert({
             sender_id: sender.id,
-            receiver_id: receiverId, // Change to receiver_id if you've renamed the column
+            receiver_id: receiverId,
             emoji
-        });
+        })
+        .select()
+        .single();
 
     if (vibeError) {
         throw new Error(vibeError.message);
     }
+
+    const receiverSocket = getSocketByUserId(receiverId);
+
+    if (receiverSocket) {
+
+        receiverSocket.emit("incoming_vibe", {
+
+            vibeId: vibe.id,
+
+            senderId: sender.id,
+
+            emoji: vibe.emoji,
+
+            createdAt: vibe.created_at
+
+        });
+
+        console.log(`Realtime vibe sent to ${receiver.email}`);
+
+    }
+
 
     return {
         matched: false,
@@ -138,8 +162,30 @@ export const sendVibeService = async (sender, body) => {
     };
 };
 
-export const getPendingVibesService = async () => {
+export const getPendingVibesService = async (userId) => {
+
+    const { data, error } = await supabase
+        .from("vibes")
+        .select(`
+            id,
+            emoji,
+            created_at,
+            sender:users!vibes_sender_id_fkey (
+                id,
+                username,
+                avatar_emoji
+            )
+        `)
+        .eq("receiver_id", userId)
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        throw new Error(error.message);
+    }
+
     return {
-        message: "Pending Vibes service is under development."
+        count: data.length,
+        pendingVibes: data
     };
+
 };

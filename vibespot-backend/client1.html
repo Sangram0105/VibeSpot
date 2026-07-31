@@ -9,13 +9,16 @@
 
 <h2>Client 1 (Authenticated)</h2>
 
-<input id="message" placeholder="Type message">
+<input id="message" placeholder="Type message" oninput="typing()">
 
 <button onclick="sendMessage()">
 Send
 </button>
 
 <hr>
+<div id="typing"
+style="color:gray;height:20px;">
+</div>
 
 <div id="messages"></div>
 
@@ -23,11 +26,11 @@ Send
 
 <script>
 
-const ROOM = "23dd79ea-a0c3-439c-a917-b952a53ccf4b";
+const ROOM = "61bcb0ff-abb7-4fbb-a72a-ec5102fd5347";
 
-const MATCH_ID = "1b646624-608e-452e-88c7-d18625ceb377";
+const MATCH_ID = "cd09830c-94fc-43fd-8ebb-24e877f7cf34";
 
-const TOKEN = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjBhY2RhMThmLTNkMzMtNDE1NS05NzczLWJmYzRmM2NlNmVlZSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1c2t4bGl6cHp4b3Vjd2VyemdhLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI5NmJlZjhlNC1kODNiLTQ4MmEtODljNi02ZjgxMGIxZWNmZmYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzg1MTQ3MTM3LCJpYXQiOjE3ODUxNDM1MzcsImVtYWlsIjoicmFrZXNoQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJyYWtlc2hAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiOTZiZWY4ZTQtZDgzYi00ODJhLTg5YzYtNmY4MTBiMWVjZmZmIn0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3ODUxNDM1Mzd9XSwic2Vzc2lvbl9pZCI6ImI1MGE5ZmI5LTQxYTUtNGZlMy1iOTVlLTcxNzQ3ZjEzNWM4MiIsImlzX2Fub255bW91cyI6ZmFsc2V9.wW4WXb09ZSWsHQg1hafb6NpOQ_ILLV_5R09cTzzg4dyfkivirFK5mKf5iQMVf56BNqpO3FL8OFOc4RxmV7pFLA";
+const TOKEN = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjBhY2RhMThmLTNkMzMtNDE1NS05NzczLWJmYzRmM2NlNmVlZSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1c2t4bGl6cHp4b3Vjd2VyemdhLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI1ZWU0ZDUyMS0zMjZkLTQ2ZTYtOWRhYi0zNmQwODI1MjdlZjEiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzg1NDA4MDgxLCJpYXQiOjE3ODU0MDQ0ODEsImVtYWlsIjoic2Fuc2FpQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJzYW5zYWlAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiNWVlNGQ1MjEtMzI2ZC00NmU2LTlkYWItMzZkMDgyNTI3ZWYxIn0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3ODU0MDQ0ODF9XSwic2Vzc2lvbl9pZCI6IjZjN2FmMzcxLWNjYTYtNGY1Ny05YTBlLTFjNWYxNzY0ODg2NyIsImlzX2Fub255bW91cyI6ZmFsc2V9.CMFHwIrH4Z4__YL6uTm0bonNjwIHcpQi6zsClFka2Ueopg2Nzx2KUQhj1hxaZwUktCXP6aSy2fe7KUhKTTL1Ww";
 
 const socket = io("http://localhost:5000",{
 
@@ -41,7 +44,26 @@ socket.on("connect",()=>{
 
     console.log("Connected:",socket.id);
 
-    socket.emit("join_room",ROOM);
+    socket.emit("join_match", {
+        matchId: MATCH_ID
+    });
+
+});
+socket.on("match_joined", (data) => {
+
+    console.log("Joined Match", data);
+
+    joined = true;
+
+});
+
+socket.on("incoming_vibe", (data) => {
+
+    console.log("🔔 New Vibe Received");
+
+    console.log(data);
+
+    alert(`Someone sent you a ${data.emoji}`);
 
 });
 
@@ -51,6 +73,8 @@ socket.on("receive_message",(data)=>{
     `<p><b>${data.senderId}</b> : ${data.message}</p>`;
 
 });
+
+
 
 socket.on("chat_error",(err)=>{
 
@@ -64,20 +88,49 @@ socket.on("connect_error",(err)=>{
 
 });
 
+let typingTimeout;
+
+function typing() {
+
+    if (!joined) return;
+
+    console.log("Typing");
+
+    socket.emit("typing_start");
+
+    clearTimeout(typingTimeout);
+
+    typingTimeout = setTimeout(() => {
+
+        socket.emit("typing_stop");
+
+    }, 1000);
+
+}
+socket.on("user_typing", (data) => {
+
+    console.log("Typing Event", data);
+
+    document.getElementById("typing").innerHTML =
+        `${data.email} is typing...`;
+
+});
+
+socket.on("user_stopped_typing", () => {
+
+    console.log("Stop Typing Event");
+
+    document.getElementById("typing").innerHTML = "";
+
+});
+
 function sendMessage(){
 
     const msg=document.getElementById("message").value;
 
     socket.emit("send_message",{
-
-
-        roomId:ROOM,
-
-        matchId:MATCH_ID,
-
         message:msg
-
-});
+    });
 
     document.getElementById("message").value="";
 
