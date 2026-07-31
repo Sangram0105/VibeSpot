@@ -10,13 +10,10 @@ import CustomButton from "../components/CustomButton";
 import CustomInput from "../components/CustomInput";
 
 import { register } from "../services/authService";
-import { useAuth } from "../context/AuthContext";
 
-import {
-  validateEmail,
-  validatePassword,
-  validateUsername,
-} from "../utils/validation";
+import { validateEmail, validatePassword, validateUsername } from "../utils/validation";
+
+
 
 const avatarOptions = [
   "😀",
@@ -32,7 +29,7 @@ const avatarOptions = [
 const RegisterPage = () => {
   const navigate = useNavigate();
 
-  const { login } = useAuth();
+
 
   const [formData, setFormData] = useState({
     username: "",
@@ -89,10 +86,12 @@ const RegisterPage = () => {
 
     try {
       setLoading(true);
-
+     console.log(formData)
       const response = await register(formData);
+   
 
-      login(response.data.token, response.data.user);
+      console.log(response)
+     
 
       navigate("/");
     } catch (error: any) {
