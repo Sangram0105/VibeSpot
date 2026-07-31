@@ -9,7 +9,7 @@
 
 <h2>Client 2 (Authenticated)</h2>
 
-<input id="message" placeholder="Type message">
+<input id="message" placeholder="Type message" oninput="typing()">
 
 <button onclick="sendMessage()">
 Send
@@ -17,17 +17,21 @@ Send
 
 <hr>
 
+<div id="typing"
+style="color:gray;height:20px;">
+</div>
+
 <div id="messages"></div>
 
 <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
 
-<script>
+<script>    
 
-const ROOM = "23dd79ea-a0c3-439c-a917-b952a53ccf4b";
+const ROOM = "61bcb0ff-abb7-4fbb-a72a-ec5102fd5347";
 
-const MATCH_ID = "1b646624-608e-452e-88c7-d18625ceb377";
+const MATCH_ID = "cd09830c-94fc-43fd-8ebb-24e877f7cf34";
 
-const TOKEN = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjBhY2RhMThmLTNkMzMtNDE1NS05NzczLWJmYzRmM2NlNmVlZSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1c2t4bGl6cHp4b3Vjd2VyemdhLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIwMjUwMDc1ZC0yZjhjLTQ5OGMtYTU5My1lYzZmMWM3MzU5MWMiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzg1MTQ3MTgyLCJpYXQiOjE3ODUxNDM1ODIsImVtYWlsIjoiYnVubnlAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbCI6ImJ1bm55QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInN1YiI6IjAyNTAwNzVkLTJmOGMtNDk4Yy1hNTkzLWVjNmYxYzczNTkxYyJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzg1MTQzNTgyfV0sInNlc3Npb25faWQiOiI0NjllYzlmYy1mNDY4LTRlNDQtODA3ZC0zZjI4ZjkwYWY4ZmUiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.b2wvzSA1ZgrNBd3zSxbQcZr6s0zHHrzi8XpjLIeawjNSoKKyeSlnORTaa4hyeZW0MxFLscSrsc-g879CZ9bYQg";
+const TOKEN = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjBhY2RhMThmLTNkMzMtNDE1NS05NzczLWJmYzRmM2NlNmVlZSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2F1c2t4bGl6cHp4b3Vjd2VyemdhLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyNDU2MTQ5Ni1jMmYxLTQ0ZTItYTEzMS02YTg3NGJhMTEyMmUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzg1NDA4MDE5LCJpYXQiOjE3ODU0MDQ0MTksImVtYWlsIjoic2FpQGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJzYWlAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwic3ViIjoiMjQ1NjE0OTYtYzJmMS00NGUyLWExMzEtNmE4NzRiYTExMjJlIn0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3ODU0MDQ0MTl9XSwic2Vzc2lvbl9pZCI6ImI1ZjZiMjljLTgzYWMtNGUyOS04ZTI3LWZjZmQ0ODUwNWQ2MSIsImlzX2Fub255bW91cyI6ZmFsc2V9.NcSqE5OGs5uvGy2AvT3rnvKsAwoL16OZ4YvE02-8LApWRSG-l-0f8vstrmeaq3Vr1h1KqPukFbh_QhYnGin9ng";
 
 const socket = io("http://localhost:5000",{
 
@@ -41,7 +45,9 @@ socket.on("connect",()=>{
 
     console.log("Connected:",socket.id);
 
-    socket.emit("join_room",ROOM);
+    socket.emit("join_match", {
+        matchId: MATCH_ID
+    });
 
 });
 
@@ -51,6 +57,8 @@ socket.on("receive_message",(data)=>{
     `<p><b>${data.senderId}</b> : ${data.message}</p>`;
 
 });
+
+
 
 socket.on("chat_error",(err)=>{
 
@@ -64,19 +72,45 @@ socket.on("connect_error",(err)=>{
 
 });
 
+let typingTimeout;
+
+function typing(){
+
+    socket.emit("typing_start");
+
+    clearTimeout(typingTimeout);
+
+    typingTimeout = setTimeout(()=>{
+
+        socket.emit("typing_stop");
+
+    },1000);
+
+}
+
+socket.on("user_typing",(data)=>{
+
+    document.getElementById("typing").innerHTML =
+
+    `${data.email} is typing...`;
+
+});
+
+socket.on("user_stopped_typing",()=>{
+
+    document.getElementById("typing").innerHTML="";
+
+});
+
 function sendMessage(){
 
     const msg=document.getElementById("message").value;
 
    socket.emit("send_message",{
 
-        roomId:ROOM,
-    
-        matchId:MATCH_ID,
-    
         message:msg
 
-});
+    });
 
     document.getElementById("message").value="";
 

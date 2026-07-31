@@ -25,23 +25,25 @@ export const sendVibe = async (req, res) => {
 
 };
 
-export const getPendingVibes = async (req, res) => {
+export const getPendingVibes = async (req, res, next) => {
 
     try {
 
-        const result = await getPendingVibesService(req.user);
+        const result = await getPendingVibesService(req.user.id);
 
         return res.status(200).json({
+
             success: true,
-            ...result
+
+            count: result.count,
+
+            pendingVibes: result.pendingVibes
+
         });
 
     } catch (error) {
 
-        return res.status(400).json({
-            success: false,
-            message: error.message
-        });
+        next(error);
 
     }
 
